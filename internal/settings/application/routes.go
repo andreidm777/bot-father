@@ -23,8 +23,10 @@ func (da *settingsApplication) Router() *gin.Engine {
 	r.PUT("/product/:product_id/template", template.Insert)
 	r.POST("/product/:product_id/template/:template_id", template.Update)
 	r.DELETE("/product/:product_id/template/:template_id", template.Delete)
+
 	r.PUT("/product/:product_id/template/:template_id/step", step.Insert)
-	r.POST("/product/:product_id/template/:template_id/step", step.Update)
+	r.POST("/product/:product_id/template/:template_id/step/:step_id", step.Update)
+	r.DELETE("/product/:product_id/template/:template_id/step/:step_id", step.Delete)
 
 	r.GET("/product/:product_id/templates", template.List)
 
