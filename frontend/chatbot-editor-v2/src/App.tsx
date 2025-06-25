@@ -13,18 +13,26 @@ import ReactFlow, {
   EdgeChange,
   MarkerType
 } from "reactflow";
+//import '@antd/dist/antd.css';
 import { store } from "./stores/store";
 import { StepNode } from "./components/StepNode";
 import "reactflow/dist/style.css";
 import '@ant-design/v5-patch-for-react-19';
-import { Button, Alert } from "antd";
-import { SaveOutlined, SyncOutlined } from "@ant-design/icons";
+import { Button, Alert, Space, notification } from "antd";
+import { SaveOutlined, SyncOutlined, SettingOutlined } from "@ant-design/icons";
+import { BotSettingsModal } from "./components/BotSettingsModal";
 
 const nodeTypes: NodeTypes = {
   step: StepNode,
 };
 
 const BotBuilder = observer(() => {
+
+  notification.config({
+    placement: 'topRight',
+    duration: 3,
+  });
+  
   const onNodesChange: OnNodesChange = (changes: NodeChange[]) => {
     // Упрощенная обработка изменений без использования item
     store.nodes = applyNodeChanges(changes, toJS(store.nodes));
@@ -38,21 +46,30 @@ const BotBuilder = observer(() => {
     <div style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Панель управления */}
       <div style={{ padding: "10px", background: "#f0f0f0", display: "flex", gap: "10px" }}>
-        <Button 
-          type="primary" 
-          icon={<SaveOutlined />}
-          onClick={() => store.saveToServer()}
-          loading={store.isLoading}
-        >
-          Сохранить
-        </Button>
-        <Button 
-          icon={<SyncOutlined />}
-          onClick={() => store.loadFromServer()}
-          loading={store.isLoading}
-        >
-          Загрузить
-        </Button>
+        <Space>
+          <Button 
+            type="primary" 
+            icon={<SaveOutlined />}
+            onClick={() => store.saveToServer()}
+            loading={store.isLoading}
+          >
+            Сохранить схему
+          </Button>
+          <Button 
+            icon={<SyncOutlined />}
+            onClick={() => store.loadFromServer()}
+            loading={store.isLoading}
+          >
+            Загрузить схему
+          </Button>
+          <Button 
+            icon={<SettingOutlined />}
+            onClick={() => store.openSettingsModal()}
+          >
+            Настройки бота
+          </Button>
+        </Space>
+        
         {store.error && (
           <Alert message={store.error} type="error" showIcon style={{ marginLeft: "auto" }} />
         )}
@@ -76,6 +93,7 @@ const BotBuilder = observer(() => {
         <Controls />
       </ReactFlow>
       </div>
+      <BotSettingsModal />
     </div>
   );
 });

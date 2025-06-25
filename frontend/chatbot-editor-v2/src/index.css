@@ -93,3 +93,46 @@
   align-items: center;
   gap: 5px;
 }
+
+/* Стили для модального окна */
+.ant-modal-body {
+  padding-top: 20px;
+}
+
+/* Стили для узла */
+.node-type-badge {
+  margin-top: 5px;
+  padding: 2px 5px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #555;
+}
+
+.context-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 5px 10px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.context-menu button:hover {
+  background: #f0f0f0;
+}
+
+/* Добавим стиль для кнопки удаления */
+.delete-btn {
+  color: #ff4d4f;
+}
+
+.delete-btn:hover {
+  background: #fff1f0;
+}
+
+.context-menu {
+  min-width: 150px;
+}
