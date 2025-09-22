@@ -40,7 +40,7 @@ func GetGinRouter(cfg *RouterConfig) *gin.Engine {
 	// Add CORS support if enabled
 	if cfg.CORS {
 		config := cors.DefaultConfig()
-		config.AllowAllOrigins = true
+		config.AllowOrigins = []string{"http://localhost:3000"}
 		config.AllowCredentials = true
 		config.AddAllowHeaders("Authorization")
 		r.Use(cors.New(config))
