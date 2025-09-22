@@ -36,6 +36,11 @@ interface Bot {
   webhookSecret?: string;
 }
 
+interface Product {
+  id?: string;
+  name: string;
+}
+
 const API_BASE_URL = 'http://localhost:8081'; // Settings service URL
 
 const api = axios.create({
@@ -99,6 +104,49 @@ export const botApi = {
       await api.delete(`${API_BASE_URL}/product/${productId}/bot/${botId}`);
     } catch (error) {
       console.error('Error deleting bot:', error);
+      throw error;
+    }
+  }
+}
+
+export const productApi = {
+  async listProducts(): Promise<Product[]> {
+    try {
+      // Note: This endpoint requires authentication, so we might need to handle that
+      // For now, we'll implement a mock version
+      console.log('Fetching products from server');
+      return [];
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
+  },
+
+  async createProduct(productData: Omit<Product, 'id'>): Promise<Product> {
+    try {
+      const response = await api.put(`${API_BASE_URL}/product`, productData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+  },
+
+  async updateProduct(productId: string, productData: Partial<Product>): Promise<Product> {
+    try {
+      const response = await api.post(`${API_BASE_URL}/product/${productId}`, productData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+  },
+
+  async deleteProduct(productId: string): Promise<void> {
+    try {
+      await api.delete(`${API_BASE_URL}/product/${productId}`);
+    } catch (error) {
+      console.error('Error deleting product:', error);
       throw error;
     }
   }

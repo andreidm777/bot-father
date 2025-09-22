@@ -1,7 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import BotBuilder from "./App";
+import App from "./App";
 import "./index.css";
+import { ConfigProvider } from "antd";
+import ruRU from 'antd/lib/locale/ru_RU';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -9,6 +11,8 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <BotBuilder />
+    <ConfigProvider locale={ruRU}>
+      <App />
+    </ConfigProvider>
   </React.StrictMode>
 );
