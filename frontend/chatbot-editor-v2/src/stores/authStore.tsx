@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import { authService } from "../api/api";
 
 export class AuthStore {
   isAuthenticated = false;
@@ -25,30 +26,38 @@ export class AuthStore {
     this.isLoading = true;
     this.error = null;
     try {
-      // In a real implementation, we would make an API call to authenticate
-      // For now, we'll simulate a successful login
-      const response = await fetch('http://localhost:8082/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, passwd: password }),
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        this.isAuthenticated = true;
-        this.user = { email };
-        // Store in localStorage for persistence
-        localStorage.setItem('authToken', 'dummy-token');
-        localStorage.setItem('user', JSON.stringify(this.user));
-        return data;
-      } else {
-        throw new Error('Authentication failed');
-      }
+      // Use the real API for authentication
+      const response = await authService.login(email, password);
+      
+      this.isAuthenticated = true;
+      this.user = { email };
+      // Store in localStorage for persistence
+      localStorage.setItem('authToken', 'dummy-token'); // In a real implementation, we'd get the actual token
+      localStorage.setItem('user', JSON.stringify(this.user));
+      
+      return response;
     } catch (error) {
       this.error = "Failed to login";
+      console.error(error);
+      throw error;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async register(email: string, password: string, confirmPassword: string) {
+    this.isLoading = true;
+    this.error = null;
+    try {
+      // Use the real API for registration
+      const response = await authService.register(email, password, confirmPassword);
+      
+      // After successful registration, automatically log in the user
+      await this.login(email, password);
+      
+      return response;
+    } catch (error) {
+      this.error = "Failed to register";
       console.error(error);
       throw error;
     } finally {
