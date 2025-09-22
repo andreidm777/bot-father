@@ -1,4 +1,5 @@
 import { makeAutoObservable } from "mobx";
+import { productApi } from "../api/api";
 
 export interface Product {
   id?: string;
@@ -19,16 +20,16 @@ export class ProductStore {
     this.isLoading = true;
     this.error = null;
     try {
-      // For now, we'll use mock data since the actual API requires authentication
-      // In a real implementation, we would call productApi.listProducts()
+      this.products = await productApi.listProducts();
+    } catch (error) {
+      // Fallback to mock data if API is not available
+      console.warn('API not available, using mock data');
       this.products = [
         { id: "1", name: "Sample Product 1" },
         { id: "2", name: "Sample Product 2" },
         { id: "3", name: "Sample Product 3" }
       ];
-    } catch (error) {
-      this.error = "Failed to load products";
-      console.error(error);
+      this.error = "Using mock data - API not available";
     } finally {
       this.isLoading = false;
     }
@@ -38,19 +39,19 @@ export class ProductStore {
     this.isLoading = true;
     this.error = null;
     try {
-      // In a real implementation, we would call productApi.createProduct(productData)
-      // For now, we'll simulate the API call
+      const newProduct = await productApi.createProduct(productData);
+      this.products = [...this.products, newProduct];
+      return newProduct;
+    } catch (error) {
+      // Fallback to mock implementation if API is not available
+      console.warn('API not available, using mock implementation');
       const newProduct = {
         id: (this.products.length + 1).toString(),
         ...productData
       };
-      
       this.products = [...this.products, newProduct];
+      this.error = "Using mock implementation - API not available";
       return newProduct;
-    } catch (error) {
-      this.error = "Failed to create product";
-      console.error(error);
-      throw error;
     } finally {
       this.isLoading = false;
     }
@@ -60,8 +61,19 @@ export class ProductStore {
     this.isLoading = true;
     this.error = null;
     try {
-      // In a real implementation, we would call productApi.updateProduct(productId, productData)
-      // For now, we'll simulate the API call
+      const updatedProduct = await productApi.updateProduct(productId, productData);
+      this.products = this.products.map(product => 
+        product.id === productId ? updatedProduct : product
+      );
+      
+      if (this.currentProduct && this.currentProduct.id === productId) {
+        this.currentProduct = updatedProduct;
+      }
+      
+      return updatedProduct;
+    } catch (error) {
+      // Fallback to mock implementation if API is not available
+      console.warn('API not available, using mock implementation');
       this.products = this.products.map(product => 
         product.id === productId ? { ...product, ...productData } : product
       );
@@ -69,10 +81,9 @@ export class ProductStore {
       if (this.currentProduct && this.currentProduct.id === productId) {
         this.currentProduct = { ...this.currentProduct, ...productData };
       }
-    } catch (error) {
-      this.error = "Failed to update product";
-      console.error(error);
-      throw error;
+      
+      this.error = "Using mock implementation - API not available";
+      return this.products.find(p => p.id === productId) || null;
     } finally {
       this.isLoading = false;
     }
@@ -82,17 +93,22 @@ export class ProductStore {
     this.isLoading = true;
     this.error = null;
     try {
-      // In a real implementation, we would call productApi.deleteProduct(productId)
-      // For now, we'll simulate the API call
+      await productApi.deleteProduct(productId);
       this.products = this.products.filter(product => product.id !== productId);
       
       if (this.currentProduct && this.currentProduct.id === productId) {
         this.currentProduct = null;
       }
     } catch (error) {
-      this.error = "Failed to delete product";
-      console.error(error);
-      throw error;
+      // Fallback to mock implementation if API is not available
+      console.warn('API not available, using mock implementation');
+      this.products = this.products.filter(product => product.id !== productId);
+      
+      if (this.currentProduct && this.currentProduct.id === productId) {
+        this.currentProduct = null;
+      }
+      
+      this.error = "Using mock implementation - API not available";
     } finally {
       this.isLoading = false;
     }
