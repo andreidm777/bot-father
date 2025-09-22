@@ -13,7 +13,9 @@ import (
 
 func (da *settingsApplication) Router() *gin.Engine {
 
-	r := router.GetGinRouter(&router.RouterConfig{})
+	r := router.GetGinRouter(&router.RouterConfig{
+		CORS: true,
+	})
 	r.GET("/product/:product_id/bots", bot.List)
 	r.PUT("/product/:product_id/bot", bot.Insert)
 	r.POST("/product/:product_id/bot/:bot_id", bot.Update)
@@ -26,7 +28,6 @@ func (da *settingsApplication) Router() *gin.Engine {
 
 	r.PUT("/product/:product_id/template/:template_id/step", step.Insert)
 	r.POST("/product/:product_id/template/:template_id/step/:step_id", step.Update)
-	r.DELETE("/product/:product_id/template/:template_id/step/:step_id", step.Delete)
 
 	r.GET("/product/:product_id/templates", template.List)
 

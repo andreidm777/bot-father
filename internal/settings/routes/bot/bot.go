@@ -37,7 +37,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	err := mongodb.GetInstance().InsertBot(bot)
+	err := mongodb.GetInstance().CheckAndInsertBot(&bot)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -64,7 +64,9 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	err = mongodb.GetInstance().UpdateBot(botId, bot)
+	bot.ID = botId
+
+	err = mongodb.GetInstance().CheckAndUpdateBot(&bot)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

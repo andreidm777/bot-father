@@ -9,7 +9,9 @@ import (
 
 func (da *authApplication) Router() *gin.Engine {
 
-	r := router.GetGinRouter(&router.RouterConfig{})
+	r := router.GetGinRouter(&router.RouterConfig{
+		CORS: true,
+	})
 
 	r.PUT("/register", routes.Register)
 	r.POST("/login", routes.Login)

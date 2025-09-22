@@ -11,6 +11,7 @@ import (
 )
 
 var collectionNames = []string{
+	"empty",
 	"bots",
 	"products",
 	"sessions",
