@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { ProductsList } from "./pages/ProductsList";
 import { ProductDetail } from "./pages/ProductDetail";
 import { BotList } from "./pages/BotList";
+import BotBuilder from "./components/BotBuilder";
 import { LoginPage } from "./pages/LoginPage";
 import { authStore } from "./stores/authStore";
 
@@ -16,6 +17,7 @@ const App = observer(() => {
             <Route path="/" element={<ProductsList />} />
             <Route path="/product/:productId" element={<ProductDetail />} />
             <Route path="/product/:productId/bots" element={<BotList />} />
+            <Route path="/product/:productId/bot/:botId" element={<BotBuilder />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />

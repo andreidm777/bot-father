@@ -158,6 +158,9 @@ export const BotList = observer(() => {
                   <EditOutlined key="edit" onClick={() => handleEditBot(bot)} />,
                   <DeleteOutlined key="delete" onClick={() => handleDeleteBot(bot)} />
                 ]}
+                hoverable
+                onClick={() => navigate(`/product/${productId}/bot/${bot.id}`)}
+                style={{ cursor: 'pointer' }}
               >
                 <p><strong>Токен:</strong> {bot.botToken}</p>
                 <p><strong>Группа:</strong> {bot.botGroup}</p>

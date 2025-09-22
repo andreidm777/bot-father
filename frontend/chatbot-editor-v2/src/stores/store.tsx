@@ -25,6 +25,10 @@ export class BotBuilderStore {
   nodes: Node[] = [];
   edges: Edge[] = [];
   nextId = 1;
+  
+  // Добавляем свойства для хранения productId и botId
+ productId: string | null = null;
+  botId: string | null = null;
 
   botSettings: BotSettings = this.loadInitialSettings();
 
@@ -41,13 +45,28 @@ export class BotBuilderStore {
     this.loadFromServer();
     this.loadBot();
   }
+  
+  // Метод для установки productId и botId
+  setProductAndBotIds(productId: string, botId: string) {
+    this.productId = productId;
+    this.botId = botId;
+    // Перезагружаем бота с новыми параметрами
+    this.loadBot();
+  }
 
   async loadBot() {
     this.isLoading = true;
     this.error = null;
     try {
-      const bots = await botApi.listBots("1"); // product_id = 1
-      this.currentBot = bots[0] || null;
+      // Используем динамический productId, если он установлен
+      const productId = this.productId || "1";
+      const bots = await botApi.listBots(productId);
+      // Если botId установлен, ищем конкретного бота, иначе берем первого
+      if (this.botId) {
+        this.currentBot = bots.find(bot => bot.id === this.botId) || null;
+      } else {
+        this.currentBot = bots[0] || null;
+      }
     } catch (error) {
       this.error = "Failed to load bot settings";
       console.error(error);
@@ -60,15 +79,18 @@ export class BotBuilderStore {
     this.isLoading = true;
     this.error = null;
     try {
+      // Используем динамический productId, если он установлен
+      const productId = this.productId || "1";
+      
       if (settings.id) {
         // Обновляем существующего бота
-        this.currentBot = await botApi.updateBot("1", settings.id, settings);
+        this.currentBot = await botApi.updateBot(productId, settings.id, settings);
       } else {
         // Создаем нового бота
-        this.currentBot = await botApi.createBot("1", {
+        this.currentBot = await botApi.createBot(productId, {
           ...settings,
           type: "telegram", // или "vk" в зависимости от типа бота
-          product_id: "1"
+          product_id: productId
         });
       }
     } catch (error) {
@@ -86,7 +108,9 @@ export class BotBuilderStore {
     this.isLoading = true;
     this.error = null;
     try {
-      await botApi.deleteBot("1", this.currentBot.id);
+      // Используем динамический productId, если он установлен
+      const productId = this.productId || "1";
+      await botApi.deleteBot(productId, this.currentBot.id);
       this.currentBot = null;
     } catch (error) {
       this.error = "Failed to delete bot";
@@ -98,12 +122,15 @@ export class BotBuilderStore {
   }
 
   private loadInitialSettings(): BotSettings {
+    // Используем динамический productId, если он установлен
+    const productId = this.productId || "1";
+    
     if (typeof window !== 'undefined') {
       const savedSettings = localStorage.getItem('bot-settings');
-      return savedSettings 
-        ? JSON.parse(savedSettings) 
+      return savedSettings
+        ? JSON.parse(savedSettings)
         : {
-            product_id: "1",
+            product_id: productId,
             type: "vk",
             botToken: '',
             botGroup: '',
@@ -111,7 +138,7 @@ export class BotBuilderStore {
           };
     }
     return {
-      product_id: "1",
+      product_id: productId,
             type: "vk",
             botToken: '',
             botGroup: '',

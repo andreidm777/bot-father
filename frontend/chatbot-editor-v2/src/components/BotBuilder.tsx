@@ -21,7 +21,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { Button, Alert, Space, notification, Popconfirm } from "antd";
 import { SaveOutlined, SyncOutlined, DeleteOutlined } from "@ant-design/icons";
 import { BotSettingsModal } from "./BotSettingsModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { productStore } from "../stores/productStore";
 import { useEffect } from "react";
 import { reaction } from "mobx";
@@ -32,6 +32,14 @@ const nodeTypes: NodeTypes = {
 
 const BotBuilder = observer(() => {
   const navigate = useNavigate();
+  const { productId, botId } = useParams();
+  
+  // Устанавливаем productId и botId в store
+  useEffect(() => {
+    if (productId && botId) {
+      store.setProductAndBotIds(productId, botId);
+    }
+  }, [productId, botId]);
 
   useEffect(() => {
     // If authentication is needed, redirect to login page
