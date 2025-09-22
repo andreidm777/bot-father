@@ -87,9 +87,9 @@ addErrorInterceptor(settingsApiInstance);
 
 // Auth API
 export const authService = {
-  async register(email: string, passwd1: string, passwd2: string) {
+  async register(email: string, password: string, confirmPassword: string) {
     try {
-      const response = await authApiInstance.put('/register', { email, passwd1, passwd2 });
+      const response = await authApiInstance.put('/register', { email, passwd1: password, passwd2: confirmPassword });
       return response.data;
     } catch (error) {
       console.error('Error registering user:', error);
