@@ -1,104 +1,76 @@
-import { Modal, Form, Input, Button, notification } from 'antd';
+import { Modal, Form, Input, Button, Select, message } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { store } from '../stores/store';
 import { useState, useRef, useEffect } from "react";
 
+const { Option } = Select;
+
 export const BotSettingsModal = observer(() => {
   const [form] = Form.useForm();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async () => {
     try {
-      setIsSubmitting(true);
       const values = await form.validateFields();
-      await store.saveBotSettings(values); // Теперь вызываем метод store
+      await store.saveBotSettings(values);
+      message.success('Настройки бота сохранены');
       store.closeSettingsModal();
-      notification.success({
-        message: 'Настройки сохранены',
-        description: 'Новые настройки бота успешно применены'
-      });
-    } catch (error: unknown) {
-      console.error('Ошибка сохранения настроек:', error);
-      notification.error({
-        message: 'Ошибка сохранения',
-        description: error instanceof Error
-        ? error.message 
-        : 'Проверьте правильность заполнения полей'
-      });
-    } finally {
-      setIsSubmitting(false);
+    } catch (error) {
+      message.error('Ошибка при сохранении настроек');
     }
   };
-
-  useEffect(() => {
-    if (store.isSettingsModalOpen) {
-      form.setFieldsValue(store.botSettings);
-    }
-  }, [store.isSettingsModalOpen, form]);
 
   return (
     <Modal
       title="Настройки бота"
-      open={store.isSettingsModalOpen}
+      visible={store.isSettingsModalOpen}
+      onOk={handleSave}
       onCancel={() => store.closeSettingsModal()}
-      footer={[
-        <Button key="back" onClick={() => store.closeSettingsModal()}>
-          Отмена
-        </Button>,
-        <Button 
-          key="submit" 
-          type="primary" 
-          onClick={handleSave}
-          loading={isSubmitting}
-        >
-          Сохранить
-        </Button>,
-      ]}
-      destroyOnClose
+      confirmLoading={store.isLoading}
     >
       <Form
         form={form}
         layout="vertical"
-        initialValues={store.botSettings}
+        initialValues={{
+          ...store.currentBot,
+          type: store.currentBot?.type || 'telegram'
+        }}
       >
+        <Form.Item name="type" label="Тип бота" rules={[{ required: true }]}>
+          <Select>
+            <Option value="telegram">Telegram</Option>
+            <Option value="vk">VK</Option>
+          </Select>
+        </Form.Item>
+
         <Form.Item
-          label="Токен бота"
           name="botToken"
-          rules={[
-            { required: true, message: 'Пожалуйста, введите токен бота' },
-            { min: 10, message: 'Токен слишком короткий' }
-          ]}
+          label="Токен бота"
+          rules={[{ required: true }]}
         >
-          <Input.Password placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" />
+          <Input.Password />
         </Form.Item>
 
         <Form.Item
-          label="Группа бота"
           name="botGroup"
-          rules={[
-            { required: true, message: 'Пожалуйста, введите группу бота' },
-            { pattern: /^[a-zA-Z0-9_]+$/, message: 'Только латинские буквы, цифры и подчеркивания' }
-          ]}
+          label="Группа бота"
+          rules={[{ required: true }]}
         >
-          <Input placeholder="my_super_bot" />
+          <Input />
         </Form.Item>
 
         <Form.Item
-          label="Callback URL для событий"
           name="callbackUrl"
-          rules={[
-            { required: true, message: 'Пожалуйста, введите URL' },
-            { type: 'url', message: 'Введите корректный URL' }
-          ]}
+          label="Callback URL"
+          rules={[{ type: 'url', required: true }]}
         >
-          <Input placeholder="https://example.com/api/callback" />
+          <Input />
         </Form.Item>
 
         <Form.Item
-          label="Секрет для вебхука (опционально)"
           name="webhookSecret"
+          label="Секрет вебхука"
         >
-          <Input.Password placeholder="Необязательное поле" />
+          <Input.Password />
         </Form.Item>
       </Form>
     </Modal>

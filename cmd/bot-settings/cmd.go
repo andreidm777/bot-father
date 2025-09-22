@@ -5,13 +5,14 @@ import (
 	"bot-father/internal/settings/application"
 	"bot-father/pkg/runner"
 	"flag"
+	"path/filepath"
 	"sync"
 
 	config "github.com/spf13/viper"
 )
 
 var (
-	configFileName = flag.String("config", "/usr/local/etc/bot-settings.conf", "config file")
+	configFileName = flag.String("config", filepath.Join("..", "config", "bot-settings.conf"), "config file")
 )
 
 func init() {

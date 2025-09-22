@@ -1,2 +1,56 @@
-frontend/chatbot-editor-v2/node_modules
+# Binaries
 bin/*
+
+# Node.js dependencies
+frontend/chatbot-editor-v2/node_modules
+frontend/chatbot-editor-v2/build
+
+# Log files
+*.log
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package lock files (they change frequently and cause merge conflicts)
+package-lock.json
+frontend/chatbot-editor-v2/package-lock.json
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary files (for Go)
+*.test
+
+# Output of the go coverage tool (for Go)
+*.out
+
+# Go workspace file
+go.work
+
+# Temporary files
+*.tmp
+*.temp

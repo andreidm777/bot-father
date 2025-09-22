@@ -1,6 +1,6 @@
 import { makeAutoObservable, toJS } from "mobx";
 import { Node, Edge, XYPosition } from "reactflow";
-import { saveBotSchema, loadBotSchema } from "../api/api";
+import { saveBotSchema, loadBotSchema, botApi } from "../api/api";
 
 // Добавим типы шагов
 export type StepType = 'wait_message' | 'send_message' | 'reaction';
@@ -12,6 +12,9 @@ export interface StepNodeData {
 }
 
 export interface BotSettings {
+  id?: string;
+  product_id: string;
+  type: string;
   botToken: string;
   botGroup: string;
   callbackUrl: string;
@@ -27,6 +30,7 @@ export class BotBuilderStore {
 
   isSettingsModalOpen = false;
 
+  currentBot: BotSettings | null = null;
 
   isLoading = false;
   error: string | null = null;
@@ -35,6 +39,62 @@ export class BotBuilderStore {
     makeAutoObservable(this);
     //this.addInitialNode();
     this.loadFromServer();
+    this.loadBot();
+  }
+
+  async loadBot() {
+    this.isLoading = true;
+    this.error = null;
+    try {
+      const bots = await botApi.listBots("1"); // product_id = 1
+      this.currentBot = bots[0] || null;
+    } catch (error) {
+      this.error = "Failed to load bot settings";
+      console.error(error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async saveBotSettings(settings: BotSettings) {
+    this.isLoading = true;
+    this.error = null;
+    try {
+      if (settings.id) {
+        // Обновляем существующего бота
+        this.currentBot = await botApi.updateBot("1", settings.id, settings);
+      } else {
+        // Создаем нового бота
+        this.currentBot = await botApi.createBot("1", {
+          ...settings,
+          type: "telegram", // или "vk" в зависимости от типа бота
+          product_id: "1"
+        });
+      }
+    } catch (error) {
+      this.error = "Failed to save bot settings";
+      console.error(error);
+      throw error;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async deleteBot() {
+    if (!this.currentBot?.id) return;
+    
+    this.isLoading = true;
+    this.error = null;
+    try {
+      await botApi.deleteBot("1", this.currentBot.id);
+      this.currentBot = null;
+    } catch (error) {
+      this.error = "Failed to delete bot";
+      console.error(error);
+      throw error;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   private loadInitialSettings(): BotSettings {
@@ -43,15 +103,19 @@ export class BotBuilderStore {
       return savedSettings 
         ? JSON.parse(savedSettings) 
         : {
+            product_id: "1",
+            type: "vk",
             botToken: '',
             botGroup: '',
             callbackUrl: ''
           };
     }
     return {
-      botToken: '',
-      botGroup: '',
-      callbackUrl: ''
+      product_id: "1",
+            type: "vk",
+            botToken: '',
+            botGroup: '',
+            callbackUrl: ''
     };
   }
 
@@ -203,25 +267,6 @@ export class BotBuilderStore {
     localStorage.setItem('bot-settings', JSON.stringify(settings));
   }
 
-  async saveBotSettings(settings: BotSettings) {
-    this.isLoading = true;
-    try {
-      // Валидация перед сохранением
-      if (!settings.botToken || !settings.botGroup || !settings.callbackUrl) {
-        throw new Error('Не все обязательные поля заполнены');
-      }
-  
-      await this.saveBotSettingsToApi(settings);
-      this.botSettings = settings;
-      return true;
-    } catch (error) {
-      console.error('Ошибка сохранения настроек:', error);
-      throw error;
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
   async loadBotSettings() {
     this.isLoading = true;
     try {
@@ -249,6 +294,8 @@ export class BotBuilderStore {
   closeSettingsModal() {
     this.isSettingsModalOpen = false;
   }
+
+
 }
 
 export const store = new BotBuilderStore();

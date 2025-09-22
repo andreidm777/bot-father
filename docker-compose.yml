@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: bot-father-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+
+  bot-auth:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    container_name: bot-father-auth
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_DSN: "mongodb://admin:password@mongodb:27017"
+    volumes:
+      - ./config:/usr/local/etc
+
+  bot-settings:
+    build:
+      context: .
+      dockerfile: Dockerfile.settings
+    container_name: bot-father-settings
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_DSN: "mongodb://admin:password@mongodb:27017"
+    volumes:
+      - ./config:/usr/local/etc
+
+volumes:
+  mongodb_data:
