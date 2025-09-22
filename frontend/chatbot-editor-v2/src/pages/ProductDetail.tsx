@@ -5,6 +5,7 @@ import { ArrowLeftOutlined, SettingOutlined } from "@ant-design/icons";
 import { productStore } from "../stores/productStore";
 import { useEffect, useState } from "react";
 import BotBuilder from "../components/BotBuilder";
+import { reaction } from "mobx";
 
 const { Title } = Typography;
 
@@ -22,6 +23,20 @@ export const ProductDetail = observer(() => {
     }
   }, [productId]);
 
+  useEffect(() => {
+    // If authentication is needed, redirect to login page
+    const disposer = reaction(
+      () => productStore.needsAuthentication,
+      (needsAuth) => {
+        if (needsAuth) {
+          navigate('/login');
+        }
+      }
+    );
+    
+    return disposer;
+  }, [navigate]);
+
   const handleBack = () => {
     navigate("/");
   };
@@ -29,6 +44,11 @@ export const ProductDetail = observer(() => {
   const handleManageBots = () => {
     setShowBotBuilder(true);
   };
+
+  // If authentication is needed, don't render the product detail
+  if (productStore.needsAuthentication) {
+    return null;
+  }
 
   if (showBotBuilder) {
     return <BotBuilder />;

@@ -11,6 +11,7 @@ export class ProductStore {
   currentProduct: Product | null = null;
   isLoading = false;
   error: string | null = null;
+  needsAuthentication = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -19,9 +20,16 @@ export class ProductStore {
   async loadProducts() {
     this.isLoading = true;
     this.error = null;
+    this.needsAuthentication = false;
     try {
       this.products = await productApi.listProducts();
-    } catch (error) {
+    } catch (error: any) {
+      // Handle unauthorized access
+      if (error.message === 'UNAUTHORIZED') {
+        this.needsAuthentication = true;
+        return;
+      }
+      
       // Fallback to mock data if API is not available
       console.warn('API not available, using mock data');
       this.products = [
@@ -42,7 +50,13 @@ export class ProductStore {
       const newProduct = await productApi.createProduct(productData);
       this.products = [...this.products, newProduct];
       return newProduct;
-    } catch (error) {
+    } catch (error: any) {
+      // Handle unauthorized access
+      if (error.message === 'UNAUTHORIZED') {
+        this.needsAuthentication = true;
+        throw error;
+      }
+      
       // Fallback to mock implementation if API is not available
       console.warn('API not available, using mock implementation');
       const newProduct = {
@@ -71,7 +85,13 @@ export class ProductStore {
       }
       
       return updatedProduct;
-    } catch (error) {
+    } catch (error: any) {
+      // Handle unauthorized access
+      if (error.message === 'UNAUTHORIZED') {
+        this.needsAuthentication = true;
+        throw error;
+      }
+      
       // Fallback to mock implementation if API is not available
       console.warn('API not available, using mock implementation');
       this.products = this.products.map(product => 
@@ -99,7 +119,13 @@ export class ProductStore {
       if (this.currentProduct && this.currentProduct.id === productId) {
         this.currentProduct = null;
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Handle unauthorized access
+      if (error.message === 'UNAUTHORIZED') {
+        this.needsAuthentication = true;
+        throw error;
+      }
+      
       // Fallback to mock implementation if API is not available
       console.warn('API not available, using mock implementation');
       this.products = this.products.filter(product => product.id !== productId);

@@ -4,16 +4,33 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { productStore } from "../stores/productStore";
 import { ProductForm } from "../components/ProductForm";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { reaction } from "mobx";
 
 const { Title } = Typography;
 
 export const ProductsList = observer(() => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     productStore.loadProducts();
   }, []);
+
+  useEffect(() => {
+    // If authentication is needed, redirect to login page
+    const disposer = reaction(
+      () => productStore.needsAuthentication,
+      (needsAuth) => {
+        if (needsAuth) {
+          navigate('/login');
+        }
+      }
+    );
+    
+    return disposer;
+  }, [navigate]);
 
   const handleAddProduct = () => {
     setEditingProduct(null);
@@ -35,9 +52,15 @@ export const ProductsList = observer(() => {
       onOk: async () => {
         try {
           await productStore.deleteProduct(product.id);
+          if (productStore.needsAuthentication) {
+            navigate('/login');
+            return;
+          }
           message.success("Продукт успешно удален");
         } catch (error) {
-          message.error("Ошибка при удалении продукта");
+          if (!productStore.needsAuthentication) {
+            message.error("Ошибка при удалении продукта");
+          }
         }
       }
     });
@@ -47,20 +70,35 @@ export const ProductsList = observer(() => {
     try {
       if (editingProduct) {
         await productStore.updateProduct(editingProduct.id, values);
+        if (productStore.needsAuthentication) {
+          navigate('/login');
+          return;
+        }
         message.success("Продукт успешно обновлен");
       } else {
         await productStore.createProduct(values);
+        if (productStore.needsAuthentication) {
+          navigate('/login');
+          return;
+        }
         message.success("Продукт успешно создан");
       }
       setIsModalVisible(false);
     } catch (error) {
-      message.error("Ошибка при сохранении продукта");
+      if (!productStore.needsAuthentication) {
+        message.error("Ошибка при сохранении продукта");
+      }
     }
   };
 
   const handleModalCancel = () => {
     setIsModalVisible(false);
   };
+
+  // If authentication is needed, don't render the product list
+  if (productStore.needsAuthentication) {
+    return null;
+  }
 
   return (
     <div style={{ padding: "20px" }}>

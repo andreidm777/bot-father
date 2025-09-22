@@ -21,12 +21,31 @@ import '@ant-design/v5-patch-for-react-19';
 import { Button, Alert, Space, notification, Popconfirm } from "antd";
 import { SaveOutlined, SyncOutlined, DeleteOutlined } from "@ant-design/icons";
 import { BotSettingsModal } from "./BotSettingsModal";
+import { useNavigate } from "react-router-dom";
+import { productStore } from "../stores/productStore";
+import { useEffect } from "react";
+import { reaction } from "mobx";
 
 const nodeTypes: NodeTypes = {
   step: StepNode,
 };
 
 const BotBuilder = observer(() => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If authentication is needed, redirect to login page
+    const disposer = reaction(
+      () => productStore.needsAuthentication,
+      (needsAuth) => {
+        if (needsAuth) {
+          navigate('/login');
+        }
+      }
+    );
+    
+    return disposer;
+  }, [navigate]);
 
   notification.config({
     placement: 'topRight',
@@ -41,6 +60,11 @@ const BotBuilder = observer(() => {
   const onEdgesChange: OnEdgesChange = (changes: EdgeChange[]) => {
     store.edges = applyEdgeChanges(changes, toJS(store.edges));
   };
+
+  // If authentication is needed, don't render the bot builder
+  if (productStore.needsAuthentication) {
+    return null;
+  }
 
   return (
     <div style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>

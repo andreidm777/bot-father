@@ -67,6 +67,11 @@ const addErrorInterceptor = (apiInstance: any) => {
     (response: any) => response,
     (error: any) => {
       if (error.response) {
+        // Handle 403 Forbidden responses
+        if (error.response.status === 403) {
+          // Throw a specific error that we can catch in components
+          return Promise.reject(new Error('UNAUTHORIZED'));
+        }
         // Обработка HTTP ошибок
         console.error('API Error:', error.response.data);
         return Promise.reject(error.response.data);
