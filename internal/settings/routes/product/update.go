@@ -1,6 +1,7 @@
 package product
 
 import (
+	"bot-father/internal/cookie"
 	"bot-father/internal/database/model"
 	"bot-father/internal/database/mongodb"
 	"net/http"
@@ -29,6 +30,17 @@ func Update(c *gin.Context) {
 	}
 
 	product.ID = productId
+
+	user, err := cookie.GetUserId(c)
+
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "uknown user"})
+		return
+	}
+
+	userId, _ := primitive.ObjectIDFromHex(user)
+
+	product.UserID = userId
 
 	err = db.UpdateProduct(&product)
 

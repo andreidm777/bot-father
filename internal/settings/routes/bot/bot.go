@@ -37,6 +37,12 @@ func Insert(c *gin.Context) {
 		return
 	}
 
+	productParam := c.Param("product_id")
+
+	productId, _ := primitive.ObjectIDFromHex(productParam)
+
+	bot.ProductID = productId
+
 	err := mongodb.GetInstance().CheckAndInsertBot(&bot)
 
 	if err != nil {

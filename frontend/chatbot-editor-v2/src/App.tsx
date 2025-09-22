@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ProductsList } from "./pages/ProductsList";
 import { ProductDetail } from "./pages/ProductDetail";
+import { BotList } from "./pages/BotList";
 import { LoginPage } from "./pages/LoginPage";
 import { authStore } from "./stores/authStore";
 
@@ -14,6 +15,7 @@ const App = observer(() => {
           <>
             <Route path="/" element={<ProductsList />} />
             <Route path="/product/:productId" element={<ProductDetail />} />
+            <Route path="/product/:productId/bots" element={<BotList />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />

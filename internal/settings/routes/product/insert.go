@@ -1,11 +1,13 @@
 package product
 
 import (
+	"bot-father/internal/cookie"
 	"bot-father/internal/database/model"
 	"bot-father/internal/database/mongodb"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Insert(c *gin.Context) {
@@ -18,7 +20,17 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	err := db.InsertProduct(&product)
+	user, err := cookie.GetUserId(c)
+
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "uknown user"})
+		return
+	}
+
+	userId, _ := primitive.ObjectIDFromHex(user)
+
+	product.UserID = userId
+	err = db.InsertProduct(&product)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

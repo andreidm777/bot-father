@@ -112,7 +112,7 @@ export const botApi = {
   async listBots(productId: string): Promise<Bot[]> {
     try {
       const response = await settingsApiInstance.get(`/product/${productId}/bots`);
-      return response.data;
+      return response.data.bots || [];
     } catch (error) {
       console.error('Error fetching bots:', error);
       throw error;
@@ -122,7 +122,7 @@ export const botApi = {
   async createBot(productId: string, botData: Omit<Bot, 'id'>): Promise<Bot> {
     try {
       const response = await settingsApiInstance.put(`/product/${productId}/bot`, botData);
-      return response.data;
+      return response.data.bot;
     } catch (error) {
       console.error('Error creating bot:', error);
       throw error;
@@ -135,7 +135,7 @@ export const botApi = {
         `/product/${productId}/bot/${botId}`,
         botData
       );
-      return response.data;
+      return response.data.bot;
     } catch (error) {
       console.error('Error updating bot:', error);
       throw error;

@@ -66,6 +66,10 @@ export const ProductsList = observer(() => {
     });
   };
 
+  const handleProductClick = (product: any) => {
+    navigate(`/product/${product.id}/bots`);
+  };
+
   const handleModalOk = async (values: any) => {
     try {
       if (editingProduct) {
@@ -129,6 +133,9 @@ export const ProductsList = observer(() => {
                   <EditOutlined key="edit" onClick={() => handleEditProduct(product)} />,
                   <DeleteOutlined key="delete" onClick={() => handleDeleteProduct(product)} />
                 ]}
+                hoverable
+                onClick={() => handleProductClick(product)}
+                style={{ cursor: 'pointer' }}
               >
                 <p>ID: {product.id}</p>
               </Card>
@@ -139,7 +146,7 @@ export const ProductsList = observer(() => {
 
       <Modal
         title={editingProduct ? "Редактировать продукт" : "Создать продукт"}
-        visible={isModalVisible}
+        open={isModalVisible}
         footer={null}
         onCancel={handleModalCancel}
       >

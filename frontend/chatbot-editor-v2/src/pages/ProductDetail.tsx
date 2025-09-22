@@ -4,7 +4,6 @@ import { Button, Typography, Card, Space } from "antd";
 import { ArrowLeftOutlined, SettingOutlined } from "@ant-design/icons";
 import { productStore } from "../stores/productStore";
 import { useEffect, useState } from "react";
-import BotBuilder from "../components/BotBuilder";
 import { reaction } from "mobx";
 
 const { Title } = Typography;
@@ -12,7 +11,6 @@ const { Title } = Typography;
 export const ProductDetail = observer(() => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const [showBotBuilder, setShowBotBuilder] = useState(false);
 
   useEffect(() => {
     if (productId) {
@@ -42,16 +40,14 @@ export const ProductDetail = observer(() => {
   };
 
   const handleManageBots = () => {
-    setShowBotBuilder(true);
+    if (productId) {
+      navigate(`/product/${productId}/bots`);
+    }
   };
 
   // If authentication is needed, don't render the product detail
   if (productStore.needsAuthentication) {
     return null;
-  }
-
-  if (showBotBuilder) {
-    return <BotBuilder />;
   }
 
   return (
